@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- RecyclerView para la lista de contactos -->
+    <SearchView
+        android:id="@+id/buscar"
+        android:layout_width="362dp"
+        android:layout_height="16dp"
+        android:layout_weight="1" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="362dp"
+        android:layout_height="514dp"
+        android:layout_weight="1"
+        android:background="@color/white" />
+
+    <!-- Botón para agregar contacto -->
+    <Button
+        android:id="@+id/btnAgregar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/design_default_color_background"
+        android:text="Agregar"
+        android:textColor="@color/material_dynamic_primary30" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

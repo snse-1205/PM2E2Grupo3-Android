@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -12,6 +11,7 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -22,7 +22,7 @@ public class Pantalla2Activity extends AppCompatActivity {
 
 
     private VideoView videoView;
-    private Button btnGrabar, btnGuardar;
+    private CardView btnGrabar, btnGuardar;
     private EditText etNombre, etTelefono, etLatitud, etLongitud;
     private Spinner spinnerCodigoPais;
     private MediaRecorder mediaRecorder;
@@ -33,7 +33,7 @@ public class Pantalla2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pantalla2);
+        setContentView(R.layout.video);
 
 
         // Verificar y solicitar permisos al iniciar la actividad
@@ -48,13 +48,13 @@ public class Pantalla2Activity extends AppCompatActivity {
 
         // Inicialización de vistas
         videoView = findViewById(R.id.videoView);
-        btnGrabar = findViewById(R.id.btnGrabar);
-        btnGuardar = findViewById(R.id.btnGuardar);
-        etNombre = findViewById(R.id.etNombre);
-        etTelefono = findViewById(R.id.etTelefono);
-        etLatitud = findViewById(R.id.etLatitud);
-        etLongitud = findViewById(R.id.etLongitud);
-        spinnerCodigoPais = findViewById(R.id.spinnerCodigoPais);
+        btnGrabar = findViewById(R.id.cardCapturar);
+        btnGuardar = findViewById(R.id.cardGuardar);
+        etNombre = findViewById(R.id.txtNombreContacto);
+        etTelefono = findViewById(R.id.txtNumeroTelefonico);
+        etLatitud = findViewById(R.id.txtLatitud);
+        etLongitud = findViewById(R.id.txtLongitud);
+        spinnerCodigoPais = findViewById(R.id.spinnerTelefono);
 
         // Evento del botón de grabar
         btnGrabar.setOnClickListener(view -> {
@@ -88,7 +88,7 @@ public class Pantalla2Activity extends AppCompatActivity {
             mediaRecorder.prepare();
             mediaRecorder.start();
             grabando = true;
-            btnGrabar.setText("Detener");
+            //btnGrabar.setText("Detener");
             Toast.makeText(this, "Grabando audio...", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -102,7 +102,7 @@ public class Pantalla2Activity extends AppCompatActivity {
             mediaRecorder.release();
             mediaRecorder = null;
             grabando = false;
-            btnGrabar.setText("Grabar");
+            //btnGrabar.setText("Grabar");
             Toast.makeText(this, "Grabación guardada en: " + archivoSalida, Toast.LENGTH_LONG).show();
         }
     }

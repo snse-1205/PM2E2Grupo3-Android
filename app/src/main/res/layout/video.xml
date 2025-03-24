@@ -103,7 +103,7 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/txtDescripcionIngresada"
+                    android:id="@+id/txtNombreContacto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="?attr/colorOnSurface"
@@ -157,9 +157,9 @@
                     android:orientation="horizontal">
 
                     <Spinner
+                        android:id="@+id/spinnerTelefono"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent">
-
                     </Spinner>
                     <EditText
                         android:id="@+id/txtNumeroTelefonico"

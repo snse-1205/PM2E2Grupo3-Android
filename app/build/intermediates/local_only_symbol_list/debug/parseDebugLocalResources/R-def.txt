@@ -1,0 +1,33 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+id btnAgregar
+id btnGrabar
+id btnGuardar
+id btnRegresar
+id btnTrazarRuta
+id buscar
+id etLatitud
+id etLongitud
+id etNombre
+id etTelefono
+id linearLayout
+id mapView
+id recyclerView
+id spinnerCodigoPais
+id tvNombre
+id videoView
+layout activity_main
+layout activity_map_screen
+layout item_contacto
+layout video
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Base.Theme.PM2E2Grupo3Android
+style Theme.PM2E2Grupo3Android
+xml backup_rules
+xml data_extraction_rules

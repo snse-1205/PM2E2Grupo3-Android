@@ -1,6 +1,7 @@
 package com.example.pm2e2grupo3_android;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +15,11 @@ import java.util.List;
 
 public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.ContactoViewHolder> {
 
-    private List<ContactosModelo> contactos; // Lista de contactos
+    private List<ContactosModelo.Contenido> contactos; // Lista de contactos
     private Context context; // Contexto para inflar vistas y mostrar diálogos
 
     // Constructor
-    public ContactoAdapter(List<ContactosModelo> contactos, Context context) {
+    public ContactoAdapter(List<ContactosModelo.Contenido> contactos, Context context) {
         this.contactos = contactos;
         this.context = context;
     }
@@ -34,15 +35,14 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
     @Override
     public void onBindViewHolder(@NonNull ContactoViewHolder holder, int position) {
         // Obtener el contacto en la posición actual
-        String contacto = contactos.get(position);
+        ContactosModelo.Contenido contenido = contactos.get(position);
 
-        // Asignar el nombre del contacto al TextView
-        holder.tvNombre.setText(contacto);
-        holder.txTelefono.setText(contacto);
+        holder.tvNombre.setText(contenido.nombre);
+        String Telefono = "+"+contenido.codigo+" "+contenido.telefono;
+        holder.txTelefono.setText(Telefono);
 
-        // Manejar el evento de clic en un contacto
         holder.itemView.setOnClickListener(v -> {
-            mostrarAlertDialog(contacto);
+            mostrarAlertDialog();
         });
     }
 
@@ -65,15 +65,17 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
     }
 
     // Método para mostrar un diálogo con opciones al hacer clic en un contacto
-    private void mostrarAlertDialog(String contacto) {
+    private void mostrarAlertDialog() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
-        builder.setTitle("Acción para " + contacto)
+        builder.setTitle("Acción para contacto")
                 .setMessage("¿Qué acción deseas realizar?")
                 .setPositiveButton("Ubicación", (dialog, which) -> {
-                    // Acción para ubicación
+                    Intent intent = new Intent(context, MapScreenActivity.class);
+                    context.startActivity(intent);
                 })
                 .setNeutralButton("Actualizar", (dialog, which) -> {
-                    // Acción para actualizar
+                    Intent intent = new Intent(context, Pantalla2Activity.class);
+                    context.startActivity(intent);
                 })
                 .setNegativeButton("Eliminar", (dialog, which) -> {
                     // Acción para eliminar

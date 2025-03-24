@@ -1,5 +1,14 @@
 package com.example.pm2e2grupo3_android.Models;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ContactosModelo {
     int id;
     String Nombre;
@@ -7,7 +16,33 @@ public class ContactosModelo {
     String Telefono;
     Double Latitud;
     Double Longitud;
+    MutableLiveData<Respuesta> respuestaMutableLiveData = new MutableLiveData<>();
 
+    public class Respuesta{
+        List<Contenido> result;
+    }
+
+    public class Contenido {
+        public int id;
+        public String nombre;
+        public int codigo;
+        public String telefono;
+    }
+
+    public class Respuesta1{
+        List<Contenido1> result;
+    }
+
+    public class Contenido1 {
+        public int id;
+        public String nombre;
+        public int codigo;
+        public String telefono;
+        public Double latitud;
+        public Double longitud;
+        public String videoContacto;
+
+    }
     public ContactosModelo() {
     }
 

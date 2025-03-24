@@ -7,15 +7,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.pm2e2grupo3_android.Models.ContactosModelo;
+
 import java.util.List;
 
 public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.ContactoViewHolder> {
 
-    private List<String> contactos; // Lista de contactos
+    private List<ContactosModelo> contactos; // Lista de contactos
     private Context context; // Contexto para inflar vistas y mostrar diálogos
 
     // Constructor
-    public ContactoAdapter(List<String> contactos, Context context) {
+    public ContactoAdapter(List<ContactosModelo> contactos, Context context) {
         this.contactos = contactos;
         this.context = context;
     }
@@ -35,6 +38,7 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
 
         // Asignar el nombre del contacto al TextView
         holder.tvNombre.setText(contacto);
+        holder.txTelefono.setText(contacto);
 
         // Manejar el evento de clic en un contacto
         holder.itemView.setOnClickListener(v -> {
@@ -51,11 +55,12 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
     // ViewHolder para ContactoAdapter
     public static class ContactoViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre; // TextView para mostrar el nombre del contacto
-
+        TextView txTelefono;
         public ContactoViewHolder(@NonNull View itemView) {
             super(itemView);
             // Vincular el TextView con el diseño
             tvNombre = itemView.findViewById(R.id.tvNombre);
+            txTelefono = itemView.findViewById(R.id.txtTelefono);
         }
     }
 

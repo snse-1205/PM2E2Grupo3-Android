@@ -5,6 +5,9 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.pm2e2grupo3_android.Models.ContactosModelo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ContactoAdapter adapter;
-    private List<String> contactos;
+    private List<ContactosModelo> contactos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Inicializar la lista de contactos
         contactos = new ArrayList<>();
-        contactos.add("Jose Escalante");
         contactos.add("Jose de Jesus Sarmiento");
         contactos.add("Maña Lopez");
 

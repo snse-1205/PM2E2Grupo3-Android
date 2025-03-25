@@ -103,7 +103,10 @@ public class Pantalla2Activity extends AppCompatActivity {
         });
 
         // Evento del botón de guardar
-        btnGuardar.setOnClickListener(view -> guardarContacto());
+        btnGuardar.setOnClickListener(view -> {
+            guardarContacto();
+            limpiarCampos();
+        });
 
         cargarListaPaises();
 
@@ -274,5 +277,17 @@ public class Pantalla2Activity extends AppCompatActivity {
         }
         return result;
     }
+
+    private void limpiarCampos() {
+        etNombre.setText("");
+        etTelefono.setText("");
+        etLatitud.setText("");
+        etLongitud.setText("");
+        videoView.setVideoURI(null);
+        videoView.stopPlayback();
+        videoUri = null;
+        idPais = 0;
+    }
+
 
 }

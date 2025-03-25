@@ -27,6 +27,8 @@ public class ContactosModelo {
         public String nombre;
         public int codigo;
         public String telefono;
+        public double longitud;
+        public double latitud;
     }
 
     public class Respuesta1{

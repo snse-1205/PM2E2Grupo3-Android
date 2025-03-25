@@ -1,0 +1,31 @@
+# Directorios de compilación
+/build/
+/app/build/
+/*.iml
+
+# Archivos de configuración de Android Studio
+/.idea/
+/.gradle/
+/local.properties
+
+# Archivos de caché y de sistema
+/.DS_Store
+/.mvn/
+*.swp
+*.swo
+
+# Archivos generados
+captures/
+output.json
+
+# Archivos de dependencias locales
+*.jar
+*.war
+*.ear
+
+# Credenciales o archivos sensibles
+/local.properties
+/google-services.json
+
+# Archivos de logs
+*.log

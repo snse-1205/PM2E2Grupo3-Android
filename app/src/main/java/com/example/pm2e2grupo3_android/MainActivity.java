@@ -45,9 +45,20 @@ public class MainActivity extends AppCompatActivity {
         Button btnAgregar = findViewById(R.id.btnAgregar);
         btnAgregar.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), Pantalla2Activity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1); // Usamos requestCode = 1
         });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            // Se guardó un contacto, recargar la lista
+            cargarContactos();
+        }
+    }
+
 
     private void cargarContactos() {
         Call<List<ContactosModelo.Contenido>> call = apiService.obtenerContenido();

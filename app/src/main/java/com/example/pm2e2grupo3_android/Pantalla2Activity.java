@@ -273,6 +273,9 @@ public class Pantalla2Activity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
+                    Intent intent = new Intent();
+                    setResult(RESULT_OK, intent);
+                    finish();
                     Log.d("Retrofit", "Contacto Creado Exitosamente :3");
                 } else {
                     Log.e("Retrofit", "Error: " + response.message());

@@ -51,5 +51,5 @@ public interface ApiService {
             @Part MultipartBody.Part video);
 
     @DELETE("contactos/{id}")
-    Call<List<ContactosModelo.Contenido1>> eliminarContacto(@Path("id") int id);
+    Call<Void> eliminarContacto(@Path("id") int id);
 }

@@ -34,6 +34,7 @@ import com.example.pm2e2grupo3_android.RetroFit.RetroFitClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +63,22 @@ public class Pantalla2Activity extends AppCompatActivity {
     private int idPais;
     private ApiService apiService = RetroFitClient.getRetrofitInstance().create(ApiService.class);
     private Utils utils;
+    private int accion=0;
+    private List<ContactosModelo.Contenido1> contactos;
+    private static ArrayList<String> codigoPaises;
+    private static int id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video);
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("accion") && intent.hasExtra("id")) {
+            accion = intent.getIntExtra("accion",0);
+            id = intent.getIntExtra("id",-1);
+        } else {
+            Log.e("Pantalla Actualizar", "No se recibio el entero");
+        }
 
 
         if (!checkPermissions()) {
@@ -104,11 +117,20 @@ public class Pantalla2Activity extends AppCompatActivity {
 
         // Evento del botón de guardar
         btnGuardar.setOnClickListener(view -> {
-            guardarContacto();
+            if(accion==2){
+                actualizarDatos();
+            }else {
+                guardarContacto();
+            }
             limpiarCampos();
         });
 
         cargarListaPaises();
+
+        if(accion==2){
+            contactos = new ArrayList<>();
+            llenarDatosEnActualizar();
+        }
 
     }
 
@@ -188,7 +210,7 @@ public class Pantalla2Activity extends AppCompatActivity {
             return;
         }
 
-        ArrayList<String> codigoPaises = new ArrayList<>();
+        codigoPaises = new ArrayList<>();
         for (PaisesModelo.Contenido pais : paises) {
             codigoPaises.add("+" + pais.codigo);
         }
@@ -263,6 +285,58 @@ public class Pantalla2Activity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void actualizarDatos(){
+
+    }
+
+    private void llenarDatosEnActualizar(){
+        int idContacto = id;
+        Log.e("Retrofit", "Id: "+idContacto);
+        if(idContacto==-1){
+            Log.e("Intent Update", "No se obtuvo el valor");
+            return;
+        }
+
+        Call<List<ContactosModelo.Contenido1>> call = apiService.obtenerContenidoPorId(idContacto);
+        call.enqueue(new Callback<List<ContactosModelo.Contenido1>>() {
+            @Override
+            public void onResponse(Call<List<ContactosModelo.Contenido1>> call, Response<List<ContactosModelo.Contenido1>> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    contactos.clear();
+                    contactos.addAll(response.body());
+                    llenarDatosEnCamposVista(contactos);
+                    Log.e("Retrofit", "Llamado exitoso");
+                }else{
+                    Log.e("Retrofit", "Error: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ContactosModelo.Contenido1>> call, Throwable t) {
+                Log.e("Retrofit", "Fallo en la solicitud: " + t.getMessage());
+            }
+        });
+    }
+
+    private void llenarDatosEnCamposVista(List<ContactosModelo.Contenido1> contactos){
+        int position = 0;
+        ContactosModelo.Contenido1 contenido = contactos.get(position);
+
+        String codigoPredeterminado = "+"+contenido.codigo;
+        int posicion = codigoPaises.indexOf(codigoPredeterminado);
+        Log.e("Spinner Seleccionar",posicion+"");
+        spinnerCodigoPais.setSelection(posicion);
+
+        etNombre.setText(contenido.nombre);
+        etTelefono.setText(contenido.telefono);
+        etLatitud.setText(contenido.latitud+"");
+        etLongitud.setText(contenido.longitud+"");
+        String path = "http://35.188.31.71/api/videos/" + contenido.videoContacto;
+        Uri videoUri = Uri.parse(path);
+        videoView.setVideoURI(videoUri);
+        videoView.start();
     }
 
     private String getRealPathFromURI(Uri contentUri) {

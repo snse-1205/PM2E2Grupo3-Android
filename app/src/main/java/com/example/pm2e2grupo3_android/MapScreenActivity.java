@@ -1,19 +1,24 @@
 package com.example.pm2e2grupo3_android;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapScreenActivity extends AppCompatActivity {
 
@@ -22,10 +27,22 @@ public class MapScreenActivity extends AppCompatActivity {
     private Button btnRegresar, btnTrazarRuta;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
+    private double latitude;
+    private double longitude;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_screen);
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("latitud") && intent.hasExtra("longitud")) {
+            latitude = intent.getDoubleExtra("latitud", 0.0);
+            longitude = intent.getDoubleExtra("longitud", 0.0);
+        } else {
+            Log.e("MapScreenActivity", "No se recibieron las coordenadas");
+        }
 
         mapView = findViewById(R.id.mapView);
         btnRegresar = findViewById(R.id.btnRegresar);
@@ -42,14 +59,15 @@ public class MapScreenActivity extends AppCompatActivity {
             public void onMapReady(GoogleMap map) {
                 googleMap = map;
                 habilitarUbicacion();
+                LatLng destino = new LatLng(latitude, longitude);
+                googleMap.addMarker(new MarkerOptions().position(destino).title("Destino"));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destino, 15));
             }
         });
 
         btnRegresar.setOnClickListener(v -> finish());
 
-        btnTrazarRuta.setOnClickListener(v -> {
-            // Aquí puedes agregar lógica para trazar ruta
-        });
+        btnTrazarRuta.setOnClickListener(v -> abrirGoogleMapsParaRuta());
 
         // Solicitar permisos si no están otorgados
         if (!tienePermisosUbicacion()) {
@@ -113,6 +131,24 @@ public class MapScreenActivity extends AppCompatActivity {
         super.onLowMemory();
         mapView.onLowMemory();
     }
+
+    private void abrirGoogleMapsParaRuta() {
+        if (latitude != 0.0 && longitude != 0.0) {
+            Uri uri = Uri.parse("google.navigation:q=" + latitude + "," + longitude + "&mode=d");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.google.android.apps.maps");
+
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                Log.e("MapScreenActivity", "Google Maps no está instalado");
+            }
+        } else {
+            Log.e("MapScreenActivity", "Coordenadas no válidas para la ruta");
+        }
+    }
+
+
 }
 
 

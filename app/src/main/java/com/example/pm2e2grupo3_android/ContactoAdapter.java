@@ -17,6 +17,7 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
 
     private List<ContactosModelo.Contenido> contactos; // Lista de contactos
     private Context context; // Contexto para inflar vistas y mostrar diálogos
+    private double lon,lat;
 
     // Constructor
     public ContactoAdapter(List<ContactosModelo.Contenido> contactos, Context context) {
@@ -42,6 +43,8 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
         holder.txTelefono.setText(Telefono);
 
         holder.itemView.setOnClickListener(v -> {
+            lon = contenido.longitud;
+            lat = contenido.latitud;
             mostrarAlertDialog();
         });
     }
@@ -71,6 +74,8 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
                 .setMessage("¿Qué acción deseas realizar?")
                 .setPositiveButton("Ubicación", (dialog, which) -> {
                     Intent intent = new Intent(context, MapScreenActivity.class);
+                    intent.putExtra("longitud",lon);
+                    intent.putExtra("latitud",lat);
                     context.startActivity(intent);
                 })
                 .setNeutralButton("Actualizar", (dialog, which) -> {

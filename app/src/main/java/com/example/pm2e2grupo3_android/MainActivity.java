@@ -4,10 +4,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.SearchView;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pm2e2grupo3_android.Activities.ContactosViewModels;
 import com.example.pm2e2grupo3_android.Models.ContactosModelo;
 import com.example.pm2e2grupo3_android.RetroFit.ApiService;
 import com.example.pm2e2grupo3_android.RetroFit.RetroFitClient;
@@ -24,50 +30,58 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ContactoAdapter adapter;
+    private ContactosViewModels contactoViewModel;
     private List<ContactosModelo.Contenido> contactos;
     private ApiService apiService = RetroFitClient.getRetrofitInstance().create(ApiService.class);
+    private EditText searchView;
+    private Button btnAgregar, btnBuscar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        searchView = findViewById(R.id.buscar);
+        btnBuscar = findViewById(R.id.btnBuscar);
+        btnAgregar = findViewById(R.id.btnAgregar);
+
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        contactos = new ArrayList<>(); // Inicializar lista vacía
-        adapter = new ContactoAdapter(contactos, this);
+        contactoViewModel = new ContactosViewModels();
+        adapter = new ContactoAdapter(new ArrayList<>(), this,contactoViewModel);
         recyclerView.setAdapter(adapter); // Asignar el adaptador primero
 
-        cargarContactos();
+        contactoViewModel.getContactosLiveData().observe(this, adapter::actualizarLista);
+        contactoViewModel.cargarContactos();
 
-        // Botón para agregar contacto
-        Button btnAgregar = findViewById(R.id.btnAgregar);
+        btnBuscar.setOnClickListener(v -> {
+            String nombre = searchView.getText().toString();
+            if(nombre.isEmpty()){
+                contactoViewModel.getContactosLiveData().observe(this, adapter::actualizarLista);
+                contactoViewModel.cargarContactos();
+            }else{
+                contactoViewModel.getContactosLiveData().observe(this, adapter::actualizarLista);
+                contactoViewModel.cargarContactos(nombre);
+            }
+        });
+
         btnAgregar.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), Pantalla2Activity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1);
         });
     }
 
-    private void cargarContactos() {
-        Call<List<ContactosModelo.Contenido>> call = apiService.obtenerContenido();
-        call.enqueue(new Callback<List<ContactosModelo.Contenido>>() {
-            @Override
-            public void onResponse(Call<List<ContactosModelo.Contenido>> call, Response<List<ContactosModelo.Contenido>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    contactos.clear(); // Limpiar datos previos si hay
-                    contactos.addAll(response.body()); // Agregar nuevos datos
-                    adapter.notifyDataSetChanged(); // Notificar al RecyclerView
-                } else {
-                    Log.e("Retrofit", "Error: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ContactosModelo.Contenido>> call, Throwable t) {
-                Log.e("Retrofit", "Fallo en la solicitud: " + t.getMessage());
-            }
-        });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==1 && resultCode==RESULT_OK){
+            contactoViewModel.getContactosLiveData().observe(this, adapter::actualizarLista);
+            contactoViewModel.cargarContactos();
+        }
+        if(requestCode==2 && resultCode==RESULT_OK){
+            contactoViewModel.getContactosLiveData().observe(this, adapter::actualizarLista);
+            contactoViewModel.cargarContactos();
+        }
     }
-
 }

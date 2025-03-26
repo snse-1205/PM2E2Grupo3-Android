@@ -34,8 +34,6 @@ public interface ApiService {
     @GET("paises/")
     Call<List<PaisesModelo.Contenido>> obtenerCodigos();
 
-    //Faltantes
-
     @GET("contactos/{id}")
     Call<List<ContactosModelo.Contenido1>> obtenerContenidoPorId(@Path("id") int id);
 
@@ -50,6 +48,19 @@ public interface ApiService {
             @Part("longitud")RequestBody longitud,
             @Part MultipartBody.Part video);
 
+    @Multipart
+    @PUT("contactos/{id}")
+    Call<Void> actualizarContactos(
+            @Path("id") int id,
+            @Part("nombre")RequestBody nombre,
+            @Part("idPais")RequestBody idPais,
+            @Part("telefono")RequestBody telefono,
+            @Part("latitud")RequestBody latitud,
+            @Part("longitud")RequestBody longitud);
+
     @DELETE("contactos/{id}")
     Call<Void> eliminarContacto(@Path("id") int id);
+
+    @GET("contactos/nombre/{nombre}")
+    Call<List<ContactosModelo.Contenido>> buscarContactos(@Path("nombre") String nombre);
 }

@@ -1,5 +1,6 @@
 package com.example.pm2e2grupo3_android;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pm2e2grupo3_android.Activities.ContactosViewModels;
 import com.example.pm2e2grupo3_android.Models.ContactosModelo;
 import com.example.pm2e2grupo3_android.RetroFit.ApiService;
 import com.example.pm2e2grupo3_android.RetroFit.RetroFitClient;
@@ -28,10 +30,13 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
     private int idcontacto;
     private ApiService apiService = RetroFitClient.getRetrofitInstance().create(ApiService.class);
 
+    private final ContactosViewModels viewModels;
+
     // Constructor
-    public ContactoAdapter(List<ContactosModelo.Contenido> contactos, Context context) {
+    public ContactoAdapter(List<ContactosModelo.Contenido> contactos, Context context, ContactosViewModels viewModels) {
         this.contactos = contactos;
         this.context = context;
+        this.viewModels = viewModels;
     }
 
     @NonNull
@@ -86,52 +91,24 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.Contac
                     Intent intent = new Intent(context, MapScreenActivity.class);
                     intent.putExtra("longitud",lon);
                     intent.putExtra("latitud",lat);
+
                     context.startActivity(intent);
                 })
                 .setNeutralButton("Actualizar", (dialog, which) -> {
                     Intent intent = new Intent(context, Pantalla2Activity.class);
                     intent.putExtra("accion",2);
                     intent.putExtra("id",idcontacto);
-                    context.startActivity(intent);
+
+                    ((Activity)context).startActivityForResult(intent,2);
                 })
                 .setNegativeButton("Eliminar", (dialog, which) -> {
-                    eliminarElemento(idcontacto);
+                    viewModels.eliminarElemento(idcontacto);
                 })
                 .show();
     }
 
-    private void eliminarElemento(int id){
-        if(id==-1){
-            return;
-        }
-        Call<Void> call = apiService.eliminarContacto(idcontacto);
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if(response.isSuccessful()){
-                    Log.e("Retrofit", "Eliminado exitosamente");
-                    int position = -1;
-                    for (int i = 0; i < contactos.size(); i++) {
-                        if (contactos.get(i).id == id) {
-                            position = i;
-                            break;
-                        }
-                    }
-
-                    if (position != -1) {
-                        contactos.remove(position);
-                        notifyItemRemoved(position);  // Actualiza el RecyclerView
-                        notifyItemRangeChanged(position, contactos.size()); // Corrige las posiciones
-                    }
-                }else{
-                    Log.e("Retrofit", "Error: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("Retrofit", "Fallo en la solicitud: " + t.getMessage());
-            }
-        });
+    public void actualizarLista(List<ContactosModelo.Contenido> nuevaLista) {
+        this.contactos = nuevaLista;
+        notifyDataSetChanged();
     }
 }

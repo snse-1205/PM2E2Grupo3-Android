@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 import android.widget.AdapterView;
@@ -25,7 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.pm2e2grupo3_android.Activities.ContactosViewModels;
 import com.example.pm2e2grupo3_android.Activities.Utils;
 import com.example.pm2e2grupo3_android.Models.ContactosModelo;
 import com.example.pm2e2grupo3_android.Models.PaisesModelo;
@@ -66,24 +70,14 @@ public class Pantalla2Activity extends AppCompatActivity {
     private int accion=0;
     private List<ContactosModelo.Contenido1> contactos;
     private static ArrayList<String> codigoPaises;
+    private ContactosViewModels viewModels;
     private static int id;
+    private static int videosiono=0;
+    private TextView titulo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video);
-
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("accion") && intent.hasExtra("id")) {
-            accion = intent.getIntExtra("accion",0);
-            id = intent.getIntExtra("id",-1);
-        } else {
-            Log.e("Pantalla Actualizar", "No se recibio el entero");
-        }
-
-
-        if (!checkPermissions()) {
-            requestPermissions();
-        }
 
         // Inicialización de vistas
         videoView = findViewById(R.id.videoView);
@@ -94,6 +88,51 @@ public class Pantalla2Activity extends AppCompatActivity {
         etLatitud = findViewById(R.id.txtLatitud);
         etLongitud = findViewById(R.id.txtLongitud);
         spinnerCodigoPais = findViewById(R.id.spinnerTelefono);
+        titulo = findViewById(R.id.textView);
+
+        cargarListaPaises();
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("accion") && intent.hasExtra("id")) {
+            accion = intent.getIntExtra("accion",0);
+            if(accion==2){
+                titulo.setText("Editando Registro");
+            }
+            id = intent.getIntExtra("id",-1);
+        } else {
+            Log.e("Pantalla Actualizar", "No se recibio el entero");
+        }
+
+        viewModels = new ViewModelProvider(this).get(ContactosViewModels.class);
+
+        viewModels.getContactoGuardadoLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isGuardado) {
+                if (isGuardado != null && isGuardado) {
+                    Intent intent1 = new Intent();
+                    setResult(RESULT_OK,intent1);
+                    limpiarCampos();
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Hubo un error al guardar el contacto", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewModels.getMensajeLiveData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String mensaje) {
+                if (mensaje != null) {
+                    if (!mensaje.equals("Por favor, complete todos los campos")) {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        if (!checkPermissions()) {
+            requestPermissions();
+        }
 
         // Evento del botón de grabar
         btnGrabar.setOnClickListener(new View.OnClickListener() {
@@ -117,19 +156,33 @@ public class Pantalla2Activity extends AppCompatActivity {
 
         // Evento del botón de guardar
         btnGuardar.setOnClickListener(view -> {
-            if(accion==2){
-                actualizarDatos();
-            }else {
-                guardarContacto();
-            }
-            limpiarCampos();
+            llenarParaGuardarContacto();
         });
-
-        cargarListaPaises();
 
         if(accion==2){
             contactos = new ArrayList<>();
             llenarDatosEnActualizar();
+        }
+
+    }
+
+    private void llenarParaGuardarContacto(){
+        String nombres = etNombre.getText().toString().trim();
+        String telefonos = etTelefono.getText().toString().trim();
+        String latituds = etLatitud.getText().toString().trim();
+        String longituds = etLongitud.getText().toString().trim();
+        String codigoPais = idPais+"";
+        String videoPath;
+        if(accion==2){
+            if(videosiono == 1){
+                videoPath = getRealPathFromURI(videoUri);
+                viewModels.actualizarDatos(id, this, nombres, telefonos, latituds, longituds, codigoPais, videoPath);
+            }else if(videosiono == 0){
+                viewModels.actualizarDatos(id, this, nombres, telefonos, latituds, longituds, codigoPais);
+            }
+        }else{
+            videoPath = getRealPathFromURI(videoUri);
+            viewModels.guardarContacto(this, nombres, telefonos, latituds, longituds, codigoPais, videoPath);
         }
 
     }
@@ -149,9 +202,10 @@ public class Pantalla2Activity extends AppCompatActivity {
             videoUri = data.getData(); // Obtener el URI del video
             if (videoUri != null) {
                 Log.d("VideoView", "URI del video: " + videoUri.toString()); // Log para verificar
-                //reproducirVideo(videoUri);
+                videosiono=1;
                 guardarVideo(data);
             } else {
+                videosiono = 0;
                 Log.e("VideoView", "No se obtuvo el URI del video.");
                 Toast.makeText(this, "Error al capturar el video", Toast.LENGTH_SHORT).show();
             }
@@ -238,59 +292,6 @@ public class Pantalla2Activity extends AppCompatActivity {
         }, REQUEST_PERMISSIONS);
     }
 
-    private void guardarContacto() {
-        String nombres = etNombre.getText().toString().trim();
-        String telefonos = etTelefono.getText().toString().trim();
-        String latituds = etLatitud.getText().toString().trim();
-        String longituds = etLongitud.getText().toString().trim();
-        String codigoPais = idPais+"";
-
-        if (nombres.isEmpty() || telefonos.isEmpty() || latituds.isEmpty() || longituds.isEmpty()) {
-            Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String videoPath = getRealPathFromURI(videoUri);
-        if (videoPath == null || videoPath.isEmpty()) {
-            Toast.makeText(this, "No se pudo obtener la ruta del video", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        File videofile = new File(videoPath);
-        if (!videofile.exists()) {
-            Toast.makeText(this, "Por favor, tome un video", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        RequestBody nombre = RequestBody.create(MediaType.parse("text/plain"),nombres);
-        RequestBody idPais = RequestBody.create(MediaType.parse("text/plain"),codigoPais);
-        RequestBody telefono = RequestBody.create(MediaType.parse("text/plain"),telefonos);
-        RequestBody latitud = RequestBody.create(MediaType.parse("text/plain"),latituds);
-        RequestBody longitud = RequestBody.create(MediaType.parse("text/plain"),longituds);
-        RequestBody RequestFile = RequestBody.create(MediaType.parse("video/mp4"),videofile);
-        MultipartBody.Part videoPart = MultipartBody.Part.createFormData("video",videofile.getName(),RequestFile);
-
-        Call<Void> call = apiService.crearContacto(nombre,idPais,telefono,latitud,longitud,videoPart);
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Log.d("Retrofit", "Contacto Creado Exitosamente :3");
-                } else {
-                    Log.e("Retrofit", "Error: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("Retrofit", "Fallo en la solicitud: " + t.getMessage());
-            }
-        });
-
-    }
-
-    private void actualizarDatos(){
-
-    }
-
     private void llenarDatosEnActualizar(){
         int idContacto = id;
         Log.e("Retrofit", "Id: "+idContacto);
@@ -360,7 +361,8 @@ public class Pantalla2Activity extends AppCompatActivity {
         videoView.setVideoURI(null);
         videoView.stopPlayback();
         videoUri = null;
-        idPais = 0;
+        idPais = 1;
+        spinnerCodigoPais.setSelection(0);
     }
 
 

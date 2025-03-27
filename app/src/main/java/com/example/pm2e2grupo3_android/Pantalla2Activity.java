@@ -52,7 +52,7 @@ import retrofit2.Response;
 public class Pantalla2Activity extends AppCompatActivity {
     private VideoView videoView;
     private CardView btnGrabar, btnGuardar;
-    private EditText etNombre, etTelefono, etLatitud, etLongitud;
+    private EditText etNombre, etTelefono;
     private Spinner spinnerCodigoPais;
     private MediaRecorder mediaRecorder;
     private boolean grabando = false;
@@ -73,12 +73,12 @@ public class Pantalla2Activity extends AppCompatActivity {
     private ContactosViewModels viewModels;
     private static int id;
     private static int videosiono=0;
-    private TextView titulo;
+    private TextView titulo,etLatitud, etLongitud;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video);
-
+        videosiono=0;
         // Inicialización de vistas
         videoView = findViewById(R.id.videoView);
         btnGrabar = findViewById(R.id.cardCapturar);
@@ -173,17 +173,28 @@ public class Pantalla2Activity extends AppCompatActivity {
         String longituds = etLongitud.getText().toString().trim();
         String codigoPais = idPais+"";
         String videoPath;
-        if(accion==2){
-            if(videosiono == 1){
-                videoPath = getRealPathFromURI(videoUri);
-                viewModels.actualizarDatos(id, this, nombres, telefonos, latituds, longituds, codigoPais, videoPath);
-            }else if(videosiono == 0){
-                viewModels.actualizarDatos(id, this, nombres, telefonos, latituds, longituds, codigoPais);
-            }
+        if(nombres.isEmpty() || telefonos.isEmpty() || latituds.isEmpty()|| longituds.isEmpty()||codigoPais.isEmpty()){
+            Toast.makeText(getApplicationContext(), "Campos vacios", Toast.LENGTH_SHORT).show();
+            return;
         }else{
-            videoPath = getRealPathFromURI(videoUri);
-            viewModels.guardarContacto(this, nombres, telefonos, latituds, longituds, codigoPais, videoPath);
+            if(accion==2){
+                if(videosiono == 1){
+                    videoPath = getRealPathFromURI(videoUri);
+                    viewModels.actualizarDatos(id, this, nombres, telefonos, latituds, longituds, codigoPais, videoPath);
+                }else if(videosiono == 0){
+                    viewModels.actualizarDatos(id, this, nombres, telefonos, latituds, longituds, codigoPais);
+                }
+            }else{
+                videoPath = getRealPathFromURI(videoUri);
+                if(videoPath.isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Agregue un video", Toast.LENGTH_SHORT).show();
+                    return;
+                }else{
+                    viewModels.guardarContacto(this, nombres, telefonos, latituds, longituds, codigoPais, videoPath);
+                }
+            }
         }
+
 
     }
 

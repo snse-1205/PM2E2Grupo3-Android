@@ -161,11 +161,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent">
                     </Spinner>
+
                     <EditText
                         android:id="@+id/txtNumeroTelefonico"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:hint="00000-00000"
+                        android:inputType="phone"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="18sp" />
                 </LinearLayout>
